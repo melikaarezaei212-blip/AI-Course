@@ -1,0 +1,20 @@
+# This file lists all the dependencies needed to run the face detection application
+# Install all requirements using: pip install -r requirements.txt
+
+# OpenCV (cv2) - Computer Vision Library
+# Used for:
+# - Face detection using Haar Cascade classifiers
+# - Eye detection within face regions
+# - Video capture from webcam (VideoCapture)
+# - Image processing and manipulation
+# - Drawing rectangles and text on frames
+opencv-python>=4.5.0
+
+# NumPy - Numerical Python Library
+# Used for:
+# - Array operations on image data
+# - Color space conversions (BGR to HSV)
+# - Mathematical calculations for color detection
+# - Efficient data manipulation
+numpy>=1.19.0
+

@@ -1,4 +1,3 @@
-﻿# Group 31
 ## Project by:
 **Shirin Abdolahzade For Dr. Maryam Hajiesmaeili --- Group Number 31 @IAUCTB**
 # University Chatbot Project

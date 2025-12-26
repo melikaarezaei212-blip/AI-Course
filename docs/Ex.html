@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>کوییز جامع هوش مصنوعی - ۲۰ سوال</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@100;400;700&display=swap');
+        
+        body {
+            font-family: 'Vazirmatn', sans-serif;
+            background: #0f172a;
+            color: #f8fafc;
+            overflow-x: hidden;
+        }
+
+        .glass-card {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1.5rem;
+        }
+
+        .slide {
+            display: none;
+            transition: all 0.5s ease;
+        }
+
+        .slide.active {
+            display: block;
+            animation: fadeInRight 0.5s ease forwards;
+        }
+
+        @keyframes fadeInRight {
+            from { opacity: 0; transform: translateX(30px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .answer-content {
+            display: none;
+            animation: slideDown 0.4s ease forwards;
+        }
+
+        .answer-content.visible {
+            display: block;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .progress-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #334155;
+            transition: all 0.3s ease;
+        }
+
+        .progress-dot.active {
+            background: #3b82f6;
+            transform: scale(1.4);
+            box-shadow: 0 0 10px #3b82f6;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-center p-4">
+
+    <div class="max-w-4xl w-full">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400 mb-2">
+                کوییز ۲۰ سوالی هوش مصنوعی
+            </h1>
+            <p class="text-slate-400">مرور تخصصی پرامپت‌نویسی، هرم DIKW و یادگیری ماشین</p>
+        </div>
+
+        <!-- Main Card -->
+        <div class="glass-card shadow-2xl overflow-hidden min-h-[480px] flex flex-col">
+            <!-- Progress Info -->
+            <div class="px-8 pt-6 flex justify-between items-center border-b border-slate-700 pb-4">
+                <div id="dot-container" class="flex flex-wrap gap-1.5 max-w-[70%]"></div>
+                <span class="text-sm font-mono text-blue-400" id="counter">01 / 20</span>
+            </div>
+
+            <!-- Content Area -->
+            <div id="quiz-content" class="p-8 flex-grow">
+                <!-- Slides will be injected here -->
+            </div>
+
+            <!-- Footer Controls -->
+            <div class="px-8 py-6 bg-slate-800/50 border-t border-slate-700 flex justify-between items-center">
+                <button id="prev-btn" onclick="prevSlide()" class="opacity-0 pointer-events-none flex items-center gap-2 text-slate-300 hover:text-white transition-all">
+                    <i class="fas fa-chevron-right"></i> قبلی
+                </button>
+
+                <button id="action-btn" onclick="toggleAnswer()" class="bg-blue-600 hover:bg-blue-500 text-white px-8 py-2 rounded-full font-bold shadow-lg shadow-blue-900/20 transition-all">
+                    مشاهده پاسخ تشریحی
+                </button>
+
+                <button id="next-btn" onclick="nextSlide()" class="flex items-center gap-2 text-slate-300 hover:text-white transition-all">
+                    بعدی <i class="fas fa-chevron-left"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const rawData = [
+            // --- سوالات پرامپت‌نویسی (۸ سوال) ---
+            {
+                category: "مهندسی پرامپت",
+                question: "در پرامپت «یک لیست از غذاهای رژیمی تهیه کن [و آن‌ها را در قالب یک جدول ارائه بده]»، بخش داخل براکت نشان‌دهنده کدام مولفه پرامپت است؟",
+                answer: "این بخش نشان‌دهنده **قالب خروجی (Output Format)** است. مشخص کردن ساختار (جدول، لیست، کد و ...) به مدل کمک می‌کند تا پاسخ را طبق نیاز شما سازماندهی کند."
+            },
+            {
+                category: "مهندسی پرامپت",
+                question: "در پرامپت «[به عنوان یک منتقد حرفه‌ای فیلم]، نظر خود را درباره فیلم اینسپشن بگو»، بخش داخل براکت چه نام دارد؟",
+                answer: "این بخش **نقش (Role)** نام دارد. تعیین نقش باعث می‌شود مدل از دایره لغات و دیدگاه تخصصی آن شخصیت برای تحلیل استفاده کند."
+            },
+            {
+                category: "مهندسی پرامپت",
+                question: "در عبارت «یک ایمیل رسمی بنویس [اما از کلمات خیلی پیچیده استفاده نکن]»، بخش مشخص شده بیانگر چیست؟",
+                answer: "این بخش **محدودیت (Constraint)** نام دارد. محدودیت‌ها قوانینی هستند که مدل باید در حین تولید پاسخ رعایت کند."
+            },
+            {
+                category: "مهندسی پرامپت",
+                question: "در پرامپت «یک برنامه ورزشی بنویس [با توجه به اینکه من هفته‌ای ۳ روز زمان دارم و هدفم کاهش وزن است]»، بخش داخل براکت چه نام دارد؟",
+                answer: "این بخش **زمینه یا بستر (Context)** است. ارائه اطلاعات تکمیلی در مورد وضعیت کاربر کمک می‌کند تا پاسخ مدل شخصی‌سازی شده و دقیق‌تر باشد."
+            },
+            {
+                category: "مهندسی پرامپت",
+                question: "تکنیک 'Few-Shot Prompting' به چه معناست؟",
+                answer: "این تکنیک یعنی ارائه چند **مثال (Examples)** از ورودی و خروجی مطلوب در داخل پرامپت، تا مدل متوجه الگو و سبک مورد نظر ما شود."
+            },
+            {
+                category: "مهندسی پرامپت",
+                question: "در پرامپت «معادله زیر را حل کن: 2x + 5 = 15 [گام به گام استدلال کن]»، استفاده از بخش براکت به چه تکنیکی اشاره دارد؟",
+                answer: "این تکنیک **زنجیره افکار (Chain of Thought)** نام دارد که مدل را وادار می‌کند مراحل میانی حل مسئله را بنویسد تا ضریب خطای محاسباتی کاهش یابد."
+            },
+            {
+                category: "مهندسی پرامپت",
+                question: "بخش 'هدف' (Task/Objective) در یک پرامپت معمولاً با چه نوع کلماتی شروع می‌شود؟",
+                answer: "معمولاً با **افعال امری (Action Verbs)** شروع می‌شود؛ مثل: «بنویس»، «خلاصه‌سازی کن»، «ترجمه کن» یا «کد بزن»."
+            },
+            {
+                category: "مهندسی پرامپت",
+                question: "اگر بخواهیم هوش مصنوعی پاسخی خلاقانه و غیرمنتظره ندهد و دقیق عمل کند، 'پارامتر دمای' (Temperature) را باید روی چه عددی (نزدیک به صفر یا نزدیک به یک) تنظیم کنیم؟",
+                answer: "باید روی عدد **نزدیک به صفر** تنظیم کنیم. دمای پایین باعث می‌شود مدل محتاط‌تر عمل کرده و محتمل‌ترین کلمات را انتخاب کند (مناسب برای کارهای علمی و دقیق)."
+            },
+
+            // --- سوالات DIKW (۴ سوال) ---
+            {
+                category: "هرم DIKW",
+                question: "در سیستم یک خودروی خودران، تشخیص این الگوی رفتاری که «عابران پیاده در نزدیکی خط‌کشی معمولاً قصد عبور دارند»، در کدام سطح هرم قرار می‌گیرد؟",
+                answer: "این سطح **دانش (Knowledge)** است. دانش یعنی یافتن الگوها و روابط بین اطلاعات (رابطه مکان عابر و احتمال حرکت) برای پیش‌بینی."
+            },
+            {
+                category: "هرم DIKW",
+                question: "اگر در یک دیتابیس بانکی فقط عدد «-۵,۰۰۰,۰۰۰» را ببینیم، این موجودیت در کدام سطح هرم است؟",
+                answer: "این یک **داده (Data)** خام است. بدون داشتن برچسب یا توضیح، ما نمی‌دانیم این عدد مربوط به چیست."
+            },
+            {
+                category: "هرم DIKW",
+                question: "وقتی می‌گوییم «در فصل زمستان به دلیل لغزندگی جاده، احتمال تصادف ۲۰٪ افزایش می‌یابد»، از کدام سطح هرم به کدام سطح رسیده‌ایم؟",
+                answer: "ما از سطح **اطلاعات** (لغزندگی و آمار تصادف) به سطح **دانش** (درک رابطه علت و معلولی بین فصل و ریسک تصادف) رسیده‌ایم."
+            },
+            {
+                category: "هرم DIKW",
+                question: "بالاترین سطح هرم که شامل قضاوت اخلاقی و تصمیم‌گیری برای آینده است، چه نام دارد؟",
+                answer: "این سطح **خرد (Wisdom)** نام دارد. خرد به ما می‌گوید 'چرا' باید یک کار را انجام دهیم و جنبه‌های انسانی و اخلاقی را در نظر می‌گیرد."
+            },
+
+            // --- سوالات یادگیری ماشین و عمومی (۸ سوال) ---
+            {
+                category: "مبانی هوش مصنوعی",
+                question: "تفاوت اصلی AI با یادگیری ماشین (ML) چیست؟",
+                answer: "AI مفهوم کلی ساخت ماشین هوشمند است. ML زیرمجموعه‌ای است که به ماشین اجازه می‌دهد از داده‌ها یاد بگیرد بدون اینکه صراحتاً برای آن کار برنامه‌نویسی شده باشد."
+            },
+            {
+                category: "جستجوی هوشمند",
+                question: "در الگوریتم A*، اگر تابع h(n) همیشه صفر باشد، به چه الگوریتمی تبدیل می‌شود؟",
+                answer: "دقیقاً مشابه الگوریتم **دایجسترا (Dijkstra)** عمل می‌کند، چون دیگر از تخمین هوشمندانه برای رسیدن به هدف استفاده نمی‌کند."
+            },
+            {
+                category: "امنیت هوش مصنوعی",
+                question: "حمله 'مسموم‌سازی داده' (Data Poisoning) چیست؟",
+                answer: "وارد کردن داده‌های مخرب یا غلط به مجموعه آموزشی مدل، تا مدل در آینده رفتار اشتباهی (به نفع مهاجم) نشان دهد."
+            },
+            {
+                category: "آماده‌سازی داده",
+                question: "تفاوت One-Hot Encoding با Label Encoding چیست؟",
+                answer: "Label Encoding به دسته‌ها عدد می‌دهد (مثل ۰، ۱، ۲) اما One-Hot برای هر دسته ستون جداگانه می‌سازد تا مدل به اشتباه فکر نکند دسته‌ها با هم رابطه عددی دارند."
+            },
+            {
+                category: "آمار در AI",
+                question: "داده پرت (Outlier) چیست؟",
+                answer: "داده‌ای که فاصله بسیار زیادی با بقیه داده‌ها دارد و می‌تواند محاسبات آماری (مثل میانگین) را به شدت خراب کند."
+            },
+            {
+                category: "امنیت تصویر",
+                question: "نمونه‌های متخاصم (Adversarial Examples) در تشخیص تصویر چه هستند؟",
+                answer: "تغییرات بسیار ریزی در عکس که برای انسان نامرئی است اما باعث می‌شود هوش مصنوعی عکس را کاملاً اشتباه (مثلاً سگ را به جای گربه) ببیند."
+            },
+            {
+                category: "یادگیری تقویتی",
+                question: "پاداش (Reward) در یادگیری تقویتی چه نقشی دارد؟",
+                answer: "مانند هویج و چماق عمل می‌کند؛ مدل یاد می‌گیرد کارهایی را انجام دهد که پاداش مثبت بیشتری نصیبش شود."
+            },
+            {
+                category: "تست تورینگ",
+                question: "تست تورینگ چه چیزی را می‌سنجد؟",
+                answer: "توانایی یک ماشین در نشان دادن رفتاری هوشمندانه که از رفتار انسان قابل تشخیص نباشد."
+            }
+        ];
+
+        let questions = [];
+        let currentIndex = 0;
+        let isAnswerVisible = false;
+
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        function initQuiz() {
+            questions = shuffle([...rawData]);
+            renderDots();
+            showSlide();
+        }
+
+        function renderDots() {
+            const container = document.getElementById('dot-container');
+            container.innerHTML = '';
+            questions.forEach((_, i) => {
+                const dot = document.createElement('div');
+                dot.className = `progress-dot ${i === currentIndex ? 'active' : ''}`;
+                container.appendChild(dot);
+            });
+        }
+
+        function showSlide() {
+            const content = document.getElementById('quiz-content');
+            const q = questions[currentIndex];
+            isAnswerVisible = false;
+            
+            content.innerHTML = `
+                <div class="slide active">
+                    <div class="flex items-center gap-2 mb-4 text-emerald-400 font-bold text-sm uppercase tracking-widest">
+                        <i class="fas fa-microchip"></i> بخش: ${q.category}
+                    </div>
+                    <div id="question-text" class="text-2xl font-medium leading-relaxed text-slate-100 mb-8 transition-all duration-300">
+                        ${q.question}
+                    </div>
+                    <div id="answer-box" class="answer-content bg-slate-900/40 border-r-4 border-blue-500 p-6 rounded-l-xl">
+                        <h4 class="text-blue-400 font-bold mb-2 flex items-center gap-2">
+                            <i class="fas fa-key"></i> تحلیل و پاسخ:
+                        </h4>
+                        <p class="text-slate-300 leading-loose text-lg">${q.answer}</p>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('counter').innerText = `${String(currentIndex + 1).padStart(2, '0')} / 20`;
+            document.getElementById('action-btn').innerText = "مشاهده پاسخ تشریحی";
+            document.getElementById('prev-btn').style.opacity = currentIndex === 0 ? "0" : "1";
+            document.getElementById('prev-btn').style.pointerEvents = currentIndex === 0 ? "none" : "auto";
+            
+            renderDots();
+        }
+
+        function toggleAnswer() {
+            const answerBox = document.getElementById('answer-box');
+            const questionText = document.getElementById('question-text');
+            const btn = document.getElementById('action-btn');
+
+            if (!isAnswerVisible) {
+                answerBox.classList.add('visible');
+                questionText.classList.add('opacity-40', 'scale-95'); 
+                btn.innerText = "بازگشت به متن سوال";
+                isAnswerVisible = true;
+            } else {
+                answerBox.classList.remove('visible');
+                questionText.classList.remove('opacity-40', 'scale-95');
+                btn.innerText = "مشاهده پاسخ تشریحی";
+                isAnswerVisible = false;
+            }
+        }
+
+        function nextSlide() {
+            if (currentIndex < questions.length - 1) {
+                currentIndex++;
+                showSlide();
+            } else {
+                showFinalMessage();
+            }
+        }
+
+        function prevSlide() {
+            if (currentIndex > 0) {
+                currentIndex--;
+                showSlide();
+            }
+        }
+
+        function showFinalMessage() {
+             const content = document.getElementById('quiz-content');
+             content.innerHTML = `
+                <div class="text-center py-10">
+                    <div class="inline-block p-4 rounded-full bg-emerald-500/20 mb-6">
+                        <i class="fas fa-trophy text-6xl text-emerald-500"></i>
+                    </div>
+                    <h2 class="text-3xl font-bold mb-4 text-white">کوییز با موفقیت تمام شد!</h2>
+                    <p class="text-slate-400 mb-8 max-w-md mx-auto">شما تمامی ۲۰ سوال حوزه پرامپت، DIKW و مبانی هوشمند را مرور کردید. اکنون آمادگی بالایی در مفاهیم پایه دارید.</p>
+                    <button onclick="location.reload()" class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white px-10 py-3 rounded-full font-bold transition-all shadow-xl">
+                        شروع مجدد با ترتیب جدید
+                    </button>
+                </div>
+             `;
+             document.getElementById('action-btn').style.display = 'none';
+             document.getElementById('next-btn').style.display = 'none';
+             document.getElementById('prev-btn').style.display = 'none';
+        }
+
+        window.onload = initQuiz;
+    </script>
+</body>
+</html>

@@ -1,6 +1,6 @@
 ## 🧩 Team Members
 - Ali Baradarcherli 40010130117343
-
+- Hossein Jafari 40010130117344
 ## 🎯 Project Title
 Telegram OCR BOT
 
