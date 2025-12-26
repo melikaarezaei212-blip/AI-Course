@@ -60,7 +60,7 @@ python "main.py"
 
 ## Team Members & Roles
 
-### 👨‍💼 Mahdi
+### 👨‍💼 Mahdi Poor Jahangiri
 **Role**: Documentation & Project Management
 - Created comprehensive README documentation
 - Developed requirements.txt file
