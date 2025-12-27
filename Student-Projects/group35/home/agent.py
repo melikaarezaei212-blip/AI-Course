@@ -19,7 +19,7 @@ def ask_ai(prompt):
         str: AI's response text
     """
     # Get API key from environment variable
-    OPENROUTER_API_KEY = "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"
+    OPENROUTER_API_KEY = "sk"
     
     # Check if API key is configured
     if not OPENROUTER_API_KEY:
