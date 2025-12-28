@@ -223,6 +223,5 @@ The bot will process the input and display movie recommendations in real time.
 - ## Saba Ghanadzadeh
 - ## Shahrzad Shirazi
 - ## Roxana Norouzbegi
-- Member 3
 - Member 4
 - ## Negar Habibi
