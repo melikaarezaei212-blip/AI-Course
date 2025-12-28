@@ -1,0 +1,7 @@
+bot:
+  token: ""  # Insert your Telegram bot token here
+  language: "Farsi"
+  greeting_messages:
+    - "سلام، حالت چطوره؟ چه طور می‌تونم کمکت کنم؟"
+  farewell_messages:
+    - "ممنون که حرف زدی، امیدوارم حالت هر روز بهتر بشه."
